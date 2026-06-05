@@ -1,0 +1,14 @@
+{
+  "temperature": 42.6,
+  "humidity": 58,
+  "punchCount": 128,
+  "vibRate": 3.4,
+  "vibActive": true,
+  "irPunchCount": 78,
+  "irPunchRate": 4.1,
+  "irDetected": false,
+  "health": 86.5,
+  "efficiency": 92.0,
+  "status": "OPERATIONAL",
+  "uptime": 13720
+}

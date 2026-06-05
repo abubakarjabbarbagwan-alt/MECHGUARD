@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MECHGUARD AI V10 — Login</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+<div id="loginPage">
+  <div class="login-bg"><div class="grid-persp"></div><div class="glow-left"></div><div class="glow-right"></div></div>
+  <div class="scanlines"></div>
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="login-logo">⚙️</div>
+      <div class="login-brand-name">MECHGUARD</div>
+      <div class="login-brand-sub">Machine Health Monitoring AI v6</div>
+    </div>
+    <div class="lf-error" id="loginError">⚠️ &nbsp;Invalid credentials. Please try again.</div>
+    <div class="lf-group">
+      <label class="lf-label">Username</label>
+      <div class="lf-wrap"><i class="lf-icon">👤</i><input class="lf-input" id="username" type="text" placeholder="Enter username..."/></div>
+    </div>
+    <div class="lf-group">
+      <label class="lf-label">Password</label>
+      <div class="lf-wrap"><i class="lf-icon">🔒</i><input class="lf-input" id="password" type="password" placeholder="••••••••"/><button class="lf-eye" onclick="togglePwd()" tabindex="-1">⚡</button></div>
+    </div>
+    <button class="lf-btn" onclick="doLogin()"><div class="shimmer"></div>INITIALIZE LINK</button>
+    <div class="demo-box">
+      <div class="demo-box-title">Demo Credentials</div>
+      <div class="demo-row"><span class="demo-role">Admin:</span><span class="demo-cred" onclick="fillCred('admin','admin123')">admin / admin123</span></div>
+      <div class="demo-row"><span class="demo-role">Engineer:</span><span class="demo-cred" onclick="fillCred('engineer','eng123')">engineer / eng123</span></div>
+      <div class="demo-row"><span class="demo-role">Operator:</span><span class="demo-cred" onclick="fillCred('operator','op123')">operator / op123</span></div>
+    </div>
+  </div>
+</div>
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-logo">⚙️</div>
+  <div class="loading-brand">MECHGUARD</div>
+  <div class="loading-msg">Establishing secure link...</div>
+  <div class="loading-bar-wrap"><div class="loading-bar" id="loadBar"></div></div>
+</div>
+<script src="js/login.js"></script>
+</body>
+</html>

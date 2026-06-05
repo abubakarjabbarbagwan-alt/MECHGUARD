@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MECHGUARD AI V10 — Smart Machine Monitoring</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/landing.css">
+</head>
+<body>
+<div id="landingPage">
+  <div class="grid-bg"></div>
+  <div class="scanline"></div>
+
+  <nav>
+    <a class="nav-logo" onclick="showLanding()">MECHGUARD<span style="color:#fff;opacity:0.4"> /</span> AI</a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#how">How It Works</a></li>
+      <li><a href="#">Pricing</a></li>
+      <li><a href="#">Docs</a></li>
+    </ul>
+    <button onclick="showApp()" class="nav-cta">Login</button>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-badge">System Online — v2.4.1 Active</div>
+    <h1 class="hero-title">MECH<span>GUARD</span> AI</h1>
+    <p class="hero-subtitle">Smart Machine Health Monitoring</p>
+    <button onclick="showApp()" class="hero-cta">Get Started</button>
+    <div class="hero-stats">
+      <div class="stat"><span class="stat-num">99.8%</span><span class="stat-label">Uptime</span></div>
+      <div class="stat" style="border-left:1px solid rgba(0,245,255,0.12);border-right:1px solid rgba(0,245,255,0.12);padding:0 60px">
+        <span class="stat-num">&lt;12ms</span><span class="stat-label">Alert Latency</span>
+      </div>
+      <div class="stat"><span class="stat-num">10K+</span><span class="stat-label">Machines Monitored</span></div>
+    </div>
+  </section>
+
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-icon">◆ CORE CAPABILITIES ◆</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <section class="features" id="features">
+    <p class="section-label">What We Do</p>
+    <h2 class="section-title">Engineered for the Machine Age</h2>
+    <div class="features-grid">
+      <div class="feat-card reveal">
+        <div class="feat-icon">
+          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="32" cy="32" r="20" stroke="#00f5ff" stroke-width="1.5" stroke-dasharray="4 4"/>
+            <circle cx="32" cy="32" r="11" stroke="#00f5ff" stroke-width="1.5"/>
+            <circle cx="32" cy="32" r="4" fill="#00f5ff"/>
+            <line x1="32" y1="4" x2="32" y2="14" stroke="#00f5ff" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="32" y1="50" x2="32" y2="60" stroke="#00f5ff" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="4" y1="32" x2="14" y2="32" stroke="#00f5ff" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="50" y1="32" x2="60" y2="32" stroke="#00f5ff" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="feat-title">AI Monitoring</div>
+        <p class="feat-desc">Neural pattern recognition continuously analyzes vibration, thermal, and acoustic signatures to detect anomalies milliseconds before they escalate into failures.</p>
+        <span class="feat-tag">Neural Engine</span>
+      </div>
+      <div class="feat-card reveal">
+        <div class="feat-icon">
+          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="22" y="22" width="20" height="20" rx="3" stroke="#00f5ff" stroke-width="1.5"/>
+            <circle cx="32" cy="32" r="4" fill="#00f5ff"/>
+            <path d="M14 20 Q12 32 14 44" stroke="#00f5ff" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
+            <path d="M50 20 Q52 32 50 44" stroke="#00f5ff" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
+            <line x1="32" y1="8" x2="32" y2="22" stroke="#00f5ff" stroke-width="1.2" stroke-dasharray="2 3" opacity="0.6"/>
+            <line x1="32" y1="42" x2="32" y2="56" stroke="#00f5ff" stroke-width="1.2" stroke-dasharray="2 3" opacity="0.6"/>
+          </svg>
+        </div>
+        <div class="feat-title">IoT Sensors</div>
+        <p class="feat-desc">Deploy our industrial-grade edge nodes across your factory floor. Wireless mesh topology ensures zero blind spots with 256-bit encrypted data streams.</p>
+        <span class="feat-tag">Edge Mesh</span>
+      </div>
+      <div class="feat-card reveal">
+        <div class="feat-icon">
+          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M32 8 L32 38" stroke="#00f5ff" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="32" cy="46" r="4" fill="#00f5ff"/>
+            <circle cx="32" cy="8" r="3" fill="#00f5ff" opacity="0.7"/>
+            <line x1="48" y1="12" x2="54" y2="8" stroke="#00f5ff" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
+            <line x1="16" y1="12" x2="10" y2="8" stroke="#00f5ff" stroke-width="1.2" stroke-linecap="round" opacity="0.5"/>
+          </svg>
+        </div>
+        <div class="feat-title">Real-time Alerts</div>
+        <p class="feat-desc">Multi-channel notification cascade — SMS, Slack, PagerDuty, and email — with adaptive thresholds that learn your machinery's unique behavior over time.</p>
+        <span class="feat-tag">Sub-12ms Latency</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="how" id="how">
+    <div class="divider" style="padding:0;margin-bottom:70px">
+      <div class="divider-line"></div>
+      <div class="divider-icon">◆ HOW IT WORKS ◆</div>
+      <div class="divider-line"></div>
+    </div>
+    <div class="steps">
+      <div class="step reveal"><div class="step-num">01</div><div class="step-content"><h3>Deploy Sensor Nodes</h3><p>Attach IoT sensors to critical machines in minutes. Our plug-and-play hardware requires no wiring expertise — magnetic mounts and self-configuring mesh networking handle the rest.</p></div></div>
+      <div class="step reveal"><div class="step-num">02</div><div class="step-content"><h3>AI Baseline Training</h3><p>MechGuard AI observes normal operating patterns for 48–72 hours. The neural engine builds a dynamic health fingerprint for each individual machine on your floor.</p></div></div>
+      <div class="step reveal"><div class="step-num">03</div><div class="step-content"><h3>Continuous Anomaly Detection</h3><p>Live telemetry streams are evaluated against the learned baseline every 50ms. Deviations trigger confidence-scored alerts before failure probability exceeds 5%.</p></div></div>
+      <div class="step reveal"><div class="step-num">04</div><div class="step-content"><h3>Actionable Diagnostics</h3><p>Each alert includes root-cause analysis, predicted time-to-failure, recommended maintenance action, and a direct link to spare parts inventory.</p></div></div>
+    </div>
+  </section>
+
+  <div class="cta-banner reveal">
+    <h2>Ready to Protect Your Machines?</h2>
+    <p>Join 400+ industrial teams reducing unplanned downtime by up to 73%.</p>
+    <button onclick="showApp()" class="hero-cta">Get Started — It's Free</button>
+  </div>
+
+  <footer>
+    <div class="footer-logo">MECHGUARD AI V10</div>
+    <div class="footer-copy">© 2026 MechGuard Technologies. All rights reserved.</div>
+  </footer>
+</div>
+<script src="js/landing.js"></script>
+</body>
+</html>

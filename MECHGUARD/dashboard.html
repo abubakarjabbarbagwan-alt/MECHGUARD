@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MECHGUARD AI V10 — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/dashboard.css">
+<link rel="stylesheet" href="css/ai.css">
+<link rel="stylesheet" href="css/report.css">
+</head>
+<body>
+<div id="sbOverlay" onclick="closeSidebar()"></div>
+
+<nav id="mgSidebar">
+  <div class="sb-header">
+    <div class="sb-brand">MECH<span>/</span>GUARD</div>
+    <button class="sb-close-btn" onclick="closeSidebar()" title="Close">✕</button>
+  </div>
+  <div class="sb-nav">
+    <div class="sb-section-label">Navigation</div>
+    <button class="sb-item sb-active" id="sbNav-dashboard" onclick="sbNavigate('dashboard')">
+      <span class="sb-icon">⚙️</span>
+      <span class="sb-label">Dashboard</span>
+    </button>
+    <button class="sb-item" id="sbNav-monitoring" onclick="sbNavigate('monitoring')">
+      <span class="sb-icon">📡</span>
+      <span class="sb-label">Live Monitoring</span>
+    </button>
+    <button class="sb-item" id="sbNav-reports" onclick="sbNavigate('reports')">
+      <span class="sb-icon">📊</span>
+      <span class="sb-label">Reports</span>
+    </button>
+    <button class="sb-item" id="sbNav-alerts" onclick="sbNavigate('alerts')">
+      <span class="sb-icon">🔔</span>
+      <span class="sb-label">Alerts</span>
+      <span class="sb-badge" id="sbAlertBadge" style="display:none;">ACTIVE</span>
+    </button>
+    <div class="sb-divider"></div>
+    <div class="sb-section-label">System</div>
+    <button class="sb-item" id="sbNav-settings" onclick="sbNavigate('settings')">
+      <span class="sb-icon">🛠</span>
+      <span class="sb-label">Settings</span>
+    </button>
+    <button class="sb-item" onclick="doLogout()">
+      <span class="sb-icon">⏻</span>
+      <span class="sb-label">Logout</span>
+    </button>
+  </div>
+  <div class="sb-footer">
+    <button class="sb-sound-toggle" onclick="toggleSoundSystem()" id="sbSoundBtn" title="Toggle Alert Sounds">
+      <span class="sb-sound-icon" id="sbSoundIcon">🔊</span>
+      <span class="sb-sound-label" id="sbSoundLabel">Sound Alerts</span>
+      <div class="sb-toggle-pill on" id="sbTogglePill"><div class="sb-toggle-knob"></div></div>
+    </button>
+  </div>
+</nav>
+
+<!-- Alert blink bar -->
+<div class="alert-blink-indicator" id="alertBlinkBar"></div>
+
+<!-- Sound alert badge -->
+<div class="sound-alert-badge" id="soundAlertBadge">
+  <div class="sab-title"><div class="sab-dot"></div>SENSOR ALERT</div>
+  <div class="sab-msg" id="soundAlertMsg">Threshold exceeded</div>
+</div>
+
+<!-- Sidebar toggle button -->
+<button id="sbToggleBtn" onclick="toggleSidebar()" title="Open navigation">☰</button>
+<div id="dashPage">
+  <div class="header">
+    <div class="header-left">
+      <div class="machine-icon">⚙️</div>
+      <div>
+        <div class="header-title">MECHGUARD — MACHINE MONITOR</div>
+        <div class="header-subtitle">INDUSTRIAL MACHINE — UNIT A &nbsp;|&nbsp; LINE 3 &nbsp;|&nbsp; ESP8266 NodeMCU · AI v6</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="user-chip"><div class="user-avatar" id="userAvatar">AD</div><span id="userLabel">ADMIN</span></div>
+      <div class="status-pill" id="mainStatusPill"><div class="status-dot"></div>OPERATIONAL</div>
+      <div class="live-clock" id="clock">--:--:--</div>
+      <button class="logout-btn" onclick="doLogout()">⏻ LOGOUT</button>
+    </div>
+  </div>
+
+  <div class="esp-banner" id="esp-banner">
+    <span class="esp-banner-label">⚡ ESP8266 NODE</span>
+    <div class="esp-ip-row">
+      <span class="esp-ip-lbl">IP:</span>
+      <input id="espIpInput" class="esp-ip-input" type="text" placeholder="192.168.1.100" onkeydown="if(event.key==='Enter') saveESPIP()"/>
+      <button class="btn-connect" onclick="saveESPIP()">CONNECT</button>
+      <button class="btn-reset-current" onclick="resetCurrent()">↺ CURRENT RESET</button>
+      <button class="btn-reset-vib" onclick="resetVib()">↺ VIB RESET</button>
+    </div>
+    <div class="conn-pill" id="connPill"><div class="conn-dot" id="connDot"></div><span class="conn-text" id="connText">OFFLINE</span></div>
+    <span class="ip-status" id="ipStatus">IP daalo aur CONNECT dabao</span>
+  </div>
+
+  <div class="kpi-row" id="kpi-row">
+    <div class="kpi-card c-orange"><div class="kpi-label">Temperature</div><div class="kpi-value" id="kpiTemp">--</div><div class="kpi-unit">°C · DHT22</div><div class="kpi-badge ok" id="kpiTempBadge">NORMAL</div><div class="kpi-bg-icon">🌡️</div></div>
+    <div class="kpi-card c-blue"><div class="kpi-label">Vib Count</div><div class="kpi-value" id="kpiVibCount">--</div><div class="kpi-unit">SW420 + ACS712 Total</div><div class="kpi-badge ok" id="kpiVibBadge">NORMAL</div><div class="kpi-bg-icon">📳</div></div>
+    <div class="kpi-card c-blue" style="border-left-color:transparent;"><div class="kpi-label" style="color:#3b9eff;">Vib Rate</div><div class="kpi-value" style="font-size:1.5rem;color:#3b9eff;" id="kpiVibRate">--</div><div class="kpi-unit">triggers/sec</div><div class="kpi-badge ok" id="kpiVibRateBadge">LOW</div><div class="kpi-bg-icon">〰️</div></div>
+    <div class="kpi-card c-cur"><div class="kpi-label">Current</div><div class="kpi-value" id="kpiCurrent">--</div><div class="kpi-unit">ACS712 Current Sensor</div><div class="kpi-badge cur-off" id="kpiCurrentBadge">NORMAL</div><div class="kpi-bg-icon">⚡</div></div>
+    <div class="kpi-card c-cur" style="border-left-color:transparent;"><div class="kpi-label" style="color:#ffb300;">Power</div><div class="kpi-value" style="font-size:1.5rem;color:#ffb300;" id="kpiPower">--</div><div class="kpi-unit">amperes</div><div class="kpi-badge cur-off" id="kpiPowerBadge">LOW</div><div class="kpi-bg-icon">⚡</div></div>
+    <div class="kpi-card c-green"><div class="kpi-label">Relay</div><div class="kpi-value" id="kpiRelay" style="font-size:1.1rem;">OFF</div><div class="kpi-unit">Relay state</div><div class="kpi-badge cur-off" id="kpiRelayBadge">IDLE</div><div class="kpi-bg-icon">🔌</div></div>
+  </div>
+
+  <div class="ai-panel status-normal" id="ai-panel">
+    <!-- Header row -->
+    <div class="ai-panel-header">
+      <div class="ai-panel-title">
+        <div class="ai-blink" id="aiBlink"></div>
+        🤖 AI INTELLIGENCE ENGINE
+        <span class="ai-thinking-badge" id="aiThinkingBadge">STANDBY</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <span class="ai-conn-badge disconnected" id="aiConnBadge"><span class="ai-conn-dot"></span><span id="aiConnText">WAITING FOR SENSOR DATA</span></span>
+        <button class="btn-ai-analyze" id="btnAIAnalyze" onclick="runAIAnalysis()">⚡ RUN AI ANALYSIS</button>
+      </div>
+    </div>
+
+    <!-- LIVE READINGS ROW — 3 sensors with dynamic status -->
+    <div class="ai-live-readings">
+      <!-- Temperature -->
+      <div class="ai-live-card s-normal" id="aiLiveTempCard">
+        <div class="ai-live-sensor">🌡 TEMPERATURE</div>
+        <div class="ai-live-val c-normal" id="aiLiveTempVal">-- °C</div>
+        <div class="ai-live-row">
+          <span class="ai-live-status c-normal" id="aiLiveTempStatus">NORMAL</span>
+          <span class="ai-live-trend trend-stab" id="aiLiveTempTrend">→ Stable</span>
+        </div>
+      </div>
+      <!-- Vibration -->
+      <div class="ai-live-card s-normal" id="aiLiveVibCard">
+        <div class="ai-live-sensor">📳 VIBRATION</div>
+        <div class="ai-live-val c-normal" id="aiLiveVibVal">-- /s</div>
+        <div class="ai-live-row">
+          <span class="ai-live-status c-normal" id="aiLiveVibStatus">NORMAL</span>
+          <span class="ai-live-trend trend-stab" id="aiLiveVibTrend">→ Stable</span>
+        </div>
+      </div>
+      <!-- Voltage / Health proxy -->
+      <div class="ai-live-card s-normal" id="aiLiveVoltCard">
+        <div class="ai-live-sensor">⚡ HEALTH / EFF</div>
+        <div class="ai-live-val c-normal" id="aiLiveVoltVal">-- %</div>
+        <div class="ai-live-row">
+          <span class="ai-live-status c-normal" id="aiLiveVoltStatus">STABLE</span>
+          <span class="ai-live-trend trend-stab" id="aiLiveVoltTrend">→ Stable</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI METRIC GRID -->
+    <div class="ai-grid">
+      <div class="ai-metric-card" id="aiCardStatus"><div class="ai-metric-label">AI Status</div><div class="ai-metric-val ai-status-normal" id="aiStatusVal">NORMAL</div><div class="ai-metric-sub" id="aiConfidence">Confidence: --</div><div class="ai-metric-bar"><div class="ai-metric-bar-fill ai-bar-normal" id="aiConfBar" style="width:0%"></div></div></div>
+      <div class="ai-metric-card" id="aiCardAnomaly"><div class="ai-metric-label">Anomaly Score</div><div class="ai-metric-val ai-status-normal" id="aiAnomalyScore">0.0</div><div class="ai-metric-sub" id="aiAnomalyLabel">No anomalies</div><div class="ai-metric-bar"><div class="ai-metric-bar-fill ai-bar-normal" id="aiAnomalyBar" style="width:0%"></div></div></div>
+      <div class="ai-metric-card" id="aiCardRisk"><div class="ai-metric-label">Predicted Risk</div><div class="ai-metric-val" id="aiRiskVal" style="color:#9b6dff;">LOW</div><div class="ai-metric-sub" id="aiRiskSub">Next 24hrs</div><div class="ai-metric-bar"><div class="ai-metric-bar-fill ai-bar-purple" id="aiRiskBar" style="width:15%"></div></div></div>
+      <div class="ai-metric-card" id="aiCardTTF"><div class="ai-metric-label">Est. Time to Failure</div><div class="ai-metric-val" id="aiTTFVal" style="color:#22d87a;">—</div><div class="ai-metric-sub" id="aiTTFSub">Based on trends</div><div class="ai-metric-bar"><div class="ai-metric-bar-fill ai-bar-normal" id="aiTTFBar" style="width:90%"></div></div></div>
+    </div>
+
+    <!-- INSIGHT BOXES -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+      <div class="ai-insight-box"><div class="ai-insight-header"><span class="ai-insight-icon">🧠</span><span class="ai-insight-title">AI Root Cause Analysis</span></div><div id="aiInsightContent"><div class="ai-insight-loading"><div class="ai-dots"><span></span><span></span><span></span></div>Awaiting sensor data...</div></div></div>
+      <div class="ai-insight-box" style="border-left-color:#ffb84d;"><div class="ai-insight-header"><span class="ai-insight-icon">🔍</span><span class="ai-insight-title" style="color:#ffb84d;">Anomaly Detection</span></div><div class="ai-anomaly-list" id="aiAnomalyList"><div class="ai-anomaly-item ok"><div class="ai-anomaly-dot" style="background:#22d87a"></div>Temperature — Normal</div><div class="ai-anomaly-item ok"><div class="ai-anomaly-dot" style="background:#22d87a"></div>Vibration — Normal</div><div class="ai-anomaly-item ok"><div class="ai-anomaly-dot" style="background:#22d87a"></div>Current — Normal</div><div class="ai-anomaly-item ok"><div class="ai-anomaly-dot" style="background:#22d87a"></div>Efficiency — Normal</div></div></div>
+      <div class="ai-insight-box" style="border-left-color:#22d87a;"><div class="ai-insight-header"><span class="ai-insight-icon">🔧</span><span class="ai-insight-title" style="color:#22d87a;">AI Recommendations</span></div><div class="ai-rec-list" id="aiRecList"><div class="ai-rec-item"><span class="ai-rec-icon">✅</span>All parameters within normal range.</div><div class="ai-rec-item"><span class="ai-rec-icon">📅</span>Continue scheduled maintenance.</div></div></div>
+    </div>
+
+    <!-- PREDICTIVE STRIP -->
+    <div class="ai-predict-strip">
+      <span class="ai-predict-label">⚡ PREDICTIVE ANALYTICS</span>
+      <span class="ai-predict-val" id="aiPredictMaint">Next Maintenance: <span style="color:#ffb84d">Analyzing...</span></span>
+      <span class="ai-predict-sep">|</span>
+      <span class="ai-predict-val" id="aiPredictFailure">Failure Probability: <span style="color:#9b6dff">--</span></span>
+      <span class="ai-predict-sep">|</span>
+      <span class="ai-predict-val" id="aiPredictEff">Efficiency Trend: <span style="color:#22d87a">--</span></span>
+      <span class="ai-predict-sep">|</span>
+      <span class="ai-predict-val">Auto-Action: <span style="color:#00d4ff" id="aiAutoAction">MONITORING</span></span>
+    </div>
+  </div>
+
+
+  <div class="main-grid">
+    <div class="gauges-panel">
+      <div class="panel-title"><span>◈</span> LIVE SENSOR GAUGES</div>
+      <div class="gauge-wrap"><div class="gauge-svg-wrap"><svg width="128" height="128" viewBox="0 0 128 128"><circle class="gauge-track" cx="64" cy="64" r="52"/><circle class="gauge-fill" id="gTemp" cx="64" cy="64" r="52" stroke="url(#gTG)" stroke-dasharray="326.73" stroke-dashoffset="163"/><defs><linearGradient id="gTG" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#22d87a"/><stop offset="50%" stop-color="#f5820a"/><stop offset="100%" stop-color="#f03e3e"/></linearGradient></defs></svg><div class="gauge-center"><div class="g-icon">🌡️</div><div class="g-val" id="gTempVal" style="color:#ffb84d">--°C</div></div></div><div class="g-name">Temp (DHT22)</div><div class="g-range">MAX 100°C</div></div>
+      <div class="gauge-wrap"><div class="gauge-svg-wrap"><svg width="128" height="128" viewBox="0 0 128 128"><circle class="gauge-track" cx="64" cy="64" r="52"/><circle class="gauge-fill" id="gVibRate" cx="64" cy="64" r="52" stroke="#3b9eff" stroke-dasharray="326.73" stroke-dashoffset="326"/></svg><div class="gauge-center"><div class="g-icon">📳</div><div class="g-val" id="gVibRateVal" style="color:#3b9eff">--</div></div></div><div class="g-name">Vib Rate /s</div><div class="g-range">SCALE 0-10</div></div>
+      <div class="gauge-wrap"><div class="gauge-svg-wrap"><svg width="128" height="128" viewBox="0 0 128 128"><circle class="gauge-track" cx="64" cy="64" r="52"/><circle class="gauge-fill" id="gCurrent" cx="64" cy="64" r="52" stroke="url(#gCurG)" stroke-dasharray="326.73" stroke-dashoffset="326"/><defs><linearGradient id="gCurG" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#cc8800"/><stop offset="100%" stop-color="#ffb300"/></linearGradient></defs></svg><div class="gauge-center"><div class="g-icon">⚡</div><div class="g-val" id="gCurrentVal" style="color:#ffb300;font-size:1rem">--</div></div></div><div class="g-name">Current Draw</div><div class="g-range">LIMIT 200</div></div>
+      <div class="gauge-wrap"><div class="gauge-svg-wrap"><svg width="128" height="128" viewBox="0 0 128 128"><circle class="gauge-track" cx="64" cy="64" r="52"/><circle class="gauge-fill" id="gPower" cx="64" cy="64" r="52" stroke="#ffb300" stroke-dasharray="326.73" stroke-dashoffset="326"/></svg><div class="gauge-center"><div class="g-icon">⚡</div><div class="g-val" id="gPowerVal" style="color:#ffb300">--</div></div></div><div class="g-name">Power kW</div><div class="g-range">SCALE 0-10</div><div class="relay-indicator clear" id="relayBar"><div class="relay-dot"></div><span id="relayText">OFF</span></div></div>
+      <div class="gauge-wrap"><div class="gauge-svg-wrap"><svg width="128" height="128" viewBox="0 0 128 128"><circle class="gauge-track" cx="64" cy="64" r="52"/><circle class="gauge-fill" id="gEff" cx="64" cy="64" r="52" stroke="#f5820a" stroke-dasharray="326.73" stroke-dashoffset="163"/></svg><div class="gauge-center"><div class="g-icon">⚙️</div><div class="g-val" id="gEffVal" style="color:#f5820a">--%</div></div></div><div class="g-name">Efficiency</div><div class="g-range">TARGET 95%</div></div>
+    </div>
+
+    <div class="chart-panel">
+      <div class="chart-header"><div class="chart-title"><span>◈</span> REAL-TIME TREND</div><select class="time-selector" id="timeRange"><option value="8">8 HRS</option><option value="24">24 HRS</option></select></div>
+      <div class="chart-area"><canvas id="dataChart"></canvas></div>
+    </div>
+
+    <div class="sidebar">
+      <div class="side-card">
+        <div class="panel-title"><span>◈</span> MACHINE HEALTH</div>
+        <div class="health-big">
+          <div class="health-ring-wrap"><svg width="150" height="150" viewBox="0 0 150 150"><circle class="gauge-track" cx="75" cy="75" r="62" stroke-width="15"/><circle class="gauge-fill" id="healthRing" cx="75" cy="75" r="62" stroke="#22d87a" stroke-dasharray="389.56" stroke-dashoffset="97" stroke-width="15"/></svg><div class="health-center"><div class="health-pct" id="healthPct">--%</div><div class="health-lbl">Health</div></div></div>
+          <div class="health-badge" id="healthBadge">✅ &nbsp;GOOD CONDITION</div>
+        </div>
+        <div class="mini-grid">
+          <div class="mini-stat"><div class="mini-stat-lbl">VibRate</div><div class="mini-stat-val" id="msVibRate">--/s</div></div>
+          <div class="mini-stat"><div class="mini-stat-lbl">Power</div><div class="mini-stat-val" id="msPower">--/s</div></div>
+          <div class="mini-stat"><div class="mini-stat-lbl">Uptime</div><div class="mini-stat-val" id="msUptime">--s</div></div>
+          <div class="mini-stat"><div class="mini-stat-lbl">Efficiency</div><div class="mini-stat-val" id="msEff">--%</div></div>
+        </div>
+      </div>
+      <div class="side-card">
+        <div class="panel-title"><span>◈</span> SERVICE SCHEDULE</div>
+        <div style="margin-top:8px;"><div class="prog-label">Progress — <span id="progPct">0</span>%</div><div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div></div>
+        <div class="sched-item" onclick="openDatePicker('start')"><div class="sched-icon">📅</div><div style="flex:1;"><div class="sched-tag">Next Service (Start)</div><div class="sched-date" id="startDateDisplay">— Select Date —</div><div class="sched-days" id="startDaysLeft">CLICK TO SET DATE</div></div><div class="sched-cal">📆</div></div>
+        <div class="sched-item" onclick="openDatePicker('end')"><div class="sched-icon">🔩</div><div style="flex:1;"><div class="sched-tag">Major Overhaul (End)</div><div class="sched-date" id="endDateDisplay">— Select Date —</div><div class="sched-days" id="endDaysLeft">CLICK TO SET DATE</div></div><div class="sched-cal">📆</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-row" id="bottom-row">
+    <div class="today-stats">
+      <div class="panel-title"><span>◈</span> LIVE SENSOR SUMMARY</div>
+      <div class="stats-grid">
+        <div class="stat6"><div class="stat6-lbl">Temperature</div><div class="stat6-val" id="stTemp" style="color:#ffb84d">--°C</div></div>
+        <div class="stat6"><div class="stat6-lbl">Current</div><div class="stat6-val" id="stCurrent" style="color:#ffb300">--</div></div>
+        <div class="stat6"><div class="stat6-lbl">Power</div><div class="stat6-val" id="stPower" style="color:#ffb300">--/s</div></div>
+        <div class="stat6"><div class="stat6-lbl">Vib Count</div><div class="stat6-val" id="stVibCount" style="color:#3b9eff">--</div></div>
+        <div class="stat6"><div class="stat6-lbl">Vib Rate</div><div class="stat6-val" id="stVibRate" style="color:#3b9eff">--/s</div></div>
+        <div class="stat6"><div class="stat6-lbl">Health</div><div class="stat6-val" id="stHealth" style="color:#22d87a">--%</div></div>
+        <div class="stat6"><div class="stat6-lbl">Status</div><div class="stat6-val" id="stStatus" style="font-size:.8rem;color:#22d87a">--</div></div>
+      </div>
+      <div class="alert-strip" id="alertStrip"><div class="alert-dot"></div>Waiting for sensor data...</div>
+    </div>
+    <div class="today-stats">
+      <div class="panel-title"><span>◈</span> HOURLY PRODUCTION (Demo)</div>
+      <div class="chart-area" style="height:160px;margin-top:12px;"><canvas id="barChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ════ REPORT CENTER ════ -->
+  <div class="report-panel" id="reportCenter" style="display:none;">
+    <div class="rp-header">
+      <div class="rp-title">PREMIUM REPORT CENTER</div>
+      <div class="rp-status" id="rpStatus"><div class="rp-dot"></div><span id="rpStatusText">SYSTEM READY</span></div>
+    </div>
+    <div class="rp-cards">
+      <div class="rp-card"><div class="rp-card-lbl">Reports Generated</div><div class="rp-card-val" id="rpTotalReports">0</div><div class="rp-card-sub">All-time</div></div>
+      <div class="rp-card orange"><div class="rp-card-lbl">Last Report</div><div class="rp-card-val" id="rpLastReport" style="font-size:.95rem;">—</div><div class="rp-card-sub" id="rpLastReportSub">No reports yet</div></div>
+      <div class="rp-card"><div class="rp-card-lbl">Daily Auto Report</div><div class="rp-card-val" id="rpDailyStatus" style="font-size:.95rem;">SCHEDULED</div><div class="rp-card-sub">Generates at 23:55</div></div>
+      <div class="rp-card orange"><div class="rp-card-lbl">Machine Status</div><div class="rp-card-val" id="rpMachStatus" style="font-size:.95rem;">OPERATIONAL</div><div class="rp-card-sub" id="rpMachSub">Health monitored</div></div>
+    </div>
+    <div class="rp-btn-row">
+      <button class="rp-btn pdf"  onclick="downloadReport('pdf')">📄 DOWNLOAD PDF REPORT</button>
+      <button class="rp-btn xlsx" onclick="downloadReport('xlsx')">📊 DOWNLOAD EXCEL REPORT</button>
+      <button class="rp-btn gen"  onclick="generateSmartReport()">⚡ GENERATE REPORT</button>
+      <button class="rp-btn clr"  onclick="clearReportHistory()">🗑 OFF HISTORY</button>
+    </div>
+    <div class="rp-progress-wrap" id="rpProgressWrap">
+      <div class="rp-progress-lbl" id="rpProgressLbl">⏳ Generating report...</div>
+      <div class="rp-progress-bar"><div class="rp-progress-fill" id="rpProgressFill"></div></div>
+    </div>
+    <div class="rp-history">
+      <div class="rp-history-title">📚 REPORT HISTORY · DAILY LOGS</div>
+      <div id="rpHistoryList"><div class="rp-hist-item" style="justify-content:center;"><span style="color:#4a6280;font-style:italic;">No reports yet — generate your first report</span></div></div>
+    </div>
+  </div>
+
+  <!-- ════ SETTINGS PANEL ════ -->
+  <div id="settingsPanel" style="display:none;">
+
+    <!-- Header -->
+    <div style="background:#0c1624;border:1px solid #1a2e45;border-left:3px solid #00d4ff;border-radius:6px;padding:18px 24px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+      <div>
+        <div style="font-family:'Orbitron',monospace;font-size:.85rem;font-weight:700;letter-spacing:.2em;color:#00d4ff;text-shadow:0 0 12px rgba(0,212,255,.4);">🛠 SYSTEM SETTINGS</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:.6rem;color:#4a6280;letter-spacing:.1em;margin-top:4px;">Configure alerts, sound, and thresholds</div>
+      </div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:.6rem;color:#22d87a;background:rgba(34,216,122,.08);border:1px solid rgba(34,216,122,.2);border-radius:4px;padding:4px 12px;">v6 · LIVE</div>
+    </div>
+
+    <!-- Sound Settings Card -->
+    <div style="background:#0c1624;border:1px solid #1a2e45;border-radius:6px;margin-bottom:14px;overflow:hidden;">
+      <div style="background:linear-gradient(90deg,rgba(0,212,255,.08),transparent);border-bottom:1px solid #1a2e45;padding:14px 20px;display:flex;align-items:center;gap:10px;">
+        <span style="font-size:1.2rem;">🔊</span>
+        <span style="font-family:'Orbitron',monospace;font-size:.72rem;font-weight:700;letter-spacing:.15em;color:#e0eaf8;">SOUND ALERT SETTINGS</span>
+        <div style="flex:1;"></div>
+        <!-- Master toggle -->
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-family:'Share Tech Mono',monospace;font-size:.6rem;color:#4a6280;">MASTER</span>
+          <button onclick="toggleSoundSystem()" id="stgMasterBtn" style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.25);color:#00d4ff;font-family:'Orbitron',monospace;font-size:.58rem;letter-spacing:.1em;padding:5px 14px;border-radius:4px;cursor:pointer;transition:all .2s;" title="Toggle all sounds">🔊 ON</button>
+        </div>
+      </div>
+
+      <div style="padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+
+        <!-- Left col: Volume + Waveform -->
+        <div style="display:flex;flex-direction:column;gap:16px;">
+
+          <!-- Volume Slider -->
+          <div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <span style="font-family:'Share Tech Mono',monospace;font-size:.62rem;color:#6b7590;letter-spacing:.1em;text-transform:uppercase;">Volume</span>
+              <span id="stgVolDisplay" style="font-family:'Orbitron',monospace;font-size:.75rem;font-weight:700;color:#00d4ff;">80%</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:.85rem;">🔈</span>
+              <input type="range" id="stgVolSlider" min="1" max="100" value="80"
+                style="flex:1;-webkit-appearance:none;height:5px;border-radius:3px;background:linear-gradient(90deg,#00d4ff 80%,#1a2e45 80%);outline:none;cursor:pointer;"
+                oninput="onVolumeChange(this.value)"/>
+              <span style="font-size:.85rem;">🔊</span>
+            </div>
+          </div>
+
+          <!-- Waveform Type -->
+          <div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:.62rem;color:#6b7590;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;">Waveform Style</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;" id="stgWaveGroup">
+              <button class="stg-wave-btn stg-wave-active" data-wave="harsh" onclick="selectWave(this)">⚡ Harsh</button>
+              <button class="stg-wave-btn" data-wave="classic" onclick="selectWave(this)">〰️ Classic</button>
+              <button class="stg-wave-btn" data-wave="beep" onclick="selectWave(this)">📟 Beep</button>
+              <button class="stg-wave-btn" data-wave="siren" onclick="selectWave(this)">🚨 Siren</button>
+            </div>
+          </div>
+
+          <!-- Repeat Interval -->
+          <div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <span style="font-family:'Share Tech Mono',monospace;font-size:.62rem;color:#6b7590;letter-spacing:.1em;text-transform:uppercase;">Repeat Every</span>
+              <span id="stgRepeatDisplay" style="font-family:'Orbitron',monospace;font-size:.75rem;font-weight:700;color:#ffb84d;">3s</span>
+            </div>
+            <input type="range" id="stgRepeatSlider" min="1" max="10" value="3"
+              style="-webkit-appearance:none;width:100%;height:5px;border-radius:3px;background:linear-gradient(90deg,#ffb84d 30%,#1a2e45 30%);outline:none;cursor:pointer;"
+              oninput="onRepeatChange(this.value)"/>
+          </div>
+
+        </div>
+
+        <!-- Right col: Per-sensor toggles + Test -->
+        <div style="display:flex;flex-direction:column;gap:12px;">
+
+          <div style="font-family:'Share Tech Mono',monospace;font-size:.62rem;color:#6b7590;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px;">Individual Alert Control</div>
+
+          <!-- Temp alert row -->
+          <div class="stg-alert-row" id="stgTempRow">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:1rem;">🌡️</span>
+              <div>
+                <div style="font-family:'Rajdhani',sans-serif;font-size:.88rem;font-weight:600;color:#e0eaf8;">Temperature Alert</div>
+                <div style="font-family:'Share Tech Mono',monospace;font-size:.56rem;color:#4a6280;">Triggers above 50°C</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+              <button onclick="playTone('temp')" class="stg-test-btn" title="Test sound">▶ TEST</button>
+              <div class="stg-toggle" id="stgTempToggle" onclick="toggleAlertType('temp')" data-on="true">
+                <div class="stg-toggle-knob"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Vib alert row -->
+          <div class="stg-alert-row" id="stgVibRow">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:1rem;">📳</span>
+              <div>
+                <div style="font-family:'Rajdhani',sans-serif;font-size:.88rem;font-weight:600;color:#e0eaf8;">Vibration Alert</div>
+                <div style="font-family:'Share Tech Mono',monospace;font-size:.56rem;color:#4a6280;">Triggers above 5/s rate</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+              <button onclick="playTone('vib')" class="stg-test-btn" title="Test sound">▶ TEST</button>
+              <div class="stg-toggle" id="stgVibToggle" onclick="toggleAlertType('vib')" data-on="true">
+                <div class="stg-toggle-knob"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Test all button -->
+          <button onclick="testAllSounds()" style="margin-top:4px;width:100%;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);color:#00d4ff;font-family:'Orbitron',monospace;font-size:.62rem;letter-spacing:.12em;padding:10px;border-radius:5px;cursor:pointer;transition:all .2s;" onmouseover="this.style.background='rgba(0,212,255,.15)'" onmouseout="this.style.background='rgba(0,212,255,.08)'">
+            🔊 TEST ALL SOUNDS
+          </button>
+        </div>
+      </div>
+
+      <!-- Sound preview waveform bar -->
+      <div style="padding:0 20px 16px;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:.58rem;color:#4a6280;letter-spacing:.1em;margin-bottom:6px;">LIVE WAVEFORM PREVIEW</div>
+        <div id="stgWavePreview" style="height:36px;background:#060c14;border:1px solid #1a2e45;border-radius:4px;display:flex;align-items:center;justify-content:center;gap:2px;overflow:hidden;padding:4px 8px;">
+          <span style="font-family:'Share Tech Mono',monospace;font-size:.6rem;color:#2a3045;">— Play a test to see waveform —</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Threshold Settings Card -->
+    <div style="background:#0c1624;border:1px solid #1a2e45;border-radius:6px;margin-bottom:14px;overflow:hidden;">
+      <div style="background:linear-gradient(90deg,rgba(255,184,77,.06),transparent);border-bottom:1px solid #1a2e45;padding:14px 20px;display:flex;align-items:center;gap:10px;">
+        <span style="font-size:1.2rem;">⚙️</span>
+        <span style="font-family:'Orbitron',monospace;font-size:.72rem;font-weight:700;letter-spacing:.15em;color:#ffb84d;">ALERT THRESHOLDS</span>
+      </div>
+      <div style="padding:20px;display:grid;grid-template-columns:repeat(2,1fr);gap:16px;">
+        <div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:.6rem;color:#6b7590;letter-spacing:.1em;margin-bottom:6px;">TEMP WARN (°C)</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <input type="number" id="threshTemp" value="50" min="30" max="120"
+              style="width:70px;background:#060c14;border:1px solid rgba(245,130,10,.3);color:#ffb84d;font-family:'Orbitron',monospace;font-size:.85rem;padding:7px 10px;border-radius:5px;outline:none;text-align:center;"
+              onchange="saveThresholds()"/>
+            <span style="font-family:'Share Tech Mono',monospace;font-size:.6rem;color:#4a6280;">°C</span>
+          </div>
+        </div>
+        <div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:.6rem;color:#6b7590;letter-spacing:.1em;margin-bottom:6px;">VIB RATE WARN (/s)</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <input type="number" id="threshVib" value="5" min="1" max="50" step="0.5"
+              style="width:70px;background:#060c14;border:1px solid rgba(59,158,255,.3);color:#3b9eff;font-family:'Orbitron',monospace;font-size:.85rem;padding:7px 10px;border-radius:5px;outline:none;text-align:center;"
+              onchange="saveThresholds()"/>
+            <span style="font-family:'Share Tech Mono',monospace;font-size:.6rem;color:#4a6280;">/s</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- System Info Card -->
+    <div style="background:#0c1624;border:1px solid #1a2e45;border-radius:6px;margin-bottom:14px;overflow:hidden;">
+      <div style="background:linear-gradient(90deg,rgba(34,216,122,.05),transparent);border-bottom:1px solid #1a2e45;padding:14px 20px;display:flex;align-items:center;gap:10px;">
+        <span style="font-size:1.2rem;">ℹ️</span>
+        <span style="font-family:'Orbitron',monospace;font-size:.72rem;font-weight:700;letter-spacing:.15em;color:#22d87a;">SYSTEM INFO</span>
+      </div>
+      <div style="padding:20px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
+        <div style="background:#060c14;border:1px solid #1a2e45;border-radius:5px;padding:12px;text-align:center;">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:.55rem;color:#4a6280;letter-spacing:.1em;margin-bottom:4px;">VERSION</div>
+          <div style="font-family:'Orbitron',monospace;font-size:.85rem;font-weight:700;color:#00d4ff;">v6.1</div>
+        </div>
+        <div style="background:#060c14;border:1px solid #1a2e45;border-radius:5px;padding:12px;text-align:center;">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:.55rem;color:#4a6280;letter-spacing:.1em;margin-bottom:4px;">SOUND ENGINE</div>
+          <div style="font-family:'Orbitron',monospace;font-size:.85rem;font-weight:700;color:#22d87a;">WEB AUDIO</div>
+        </div>
+        <div style="background:#060c14;border:1px solid #1a2e45;border-radius:5px;padding:12px;text-align:center;">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:.55rem;color:#4a6280;letter-spacing:.1em;margin-bottom:4px;">SENSOR NODE</div>
+          <div style="font-family:'Orbitron',monospace;font-size:.85rem;font-weight:700;color:#ffb84d;">ESP8266</div>
+        </div>
+        <div style="background:#060c14;border:1px solid #1a2e45;border-radius:5px;padding:12px;text-align:center;">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:.55rem;color:#4a6280;letter-spacing:.1em;margin-bottom:4px;">AI ENGINE</div>
+          <div style="font-family:'Orbitron',monospace;font-size:.85rem;font-weight:700;color:#9b6dff;">NEURAL v6</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /settingsPanel -->
+
+
+</div><!-- /dashPage -->
+
+
+<!-- CALENDAR MODAL -->
+<div id="calOverlay" class="cal-overlay" onclick="closeCalIfOutside(event)">
+  <div class="cal-modal" id="calModal">
+    <div class="cal-which-label" id="calWhichLabel">📅 Next Service Date</div>
+    <div class="cal-header"><button class="cal-nav" onclick="calShiftMonth(-1)">&#8249;</button><div class="cal-month-label" id="calMonthLabel">April 2026</div><button class="cal-nav" onclick="calShiftMonth(1)">&#8250;</button></div>
+    <div class="cal-year-row"><button class="cal-yr-btn" onclick="calShiftYear(-1)">&#8249;&#8249;</button><span id="calYearLabel" class="cal-yr-lbl">2026</span><button class="cal-yr-btn" onclick="calShiftYear(1)">&#8250;&#8250;</button></div>
+    <div class="cal-weekdays"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div>
+    <div class="cal-days" id="calDays"></div>
+    <div class="cal-footer"><button class="cal-cancel" onclick="closeCalendar()">CANCEL</button><button class="cal-today" onclick="calSelectToday()">TODAY</button></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="js/api.js"></script>
+<script src="js/websocket.js"></script>
+<script src="js/esp8266.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/report.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>
