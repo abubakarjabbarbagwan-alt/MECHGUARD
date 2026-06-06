@@ -1,8 +1,4 @@
 /* MECHGUARD — AI module handles insight generation, status rules, and prediction summaries */
-let _prevTemp = null;
-let _prevVibR = null;
-let _prevEff = null;
-let _aiConnected = false;
 
 function setAIConnection(connected) {
   _aiConnected = connected;
