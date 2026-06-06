@@ -1,5 +1,4 @@
 /* MECHGUARD — AI module handles insight generation, status rules, and prediction summaries */
-let lastSensorSnapshot = null;
 let _prevTemp = null;
 let _prevVibR = null;
 let _prevEff = null;
